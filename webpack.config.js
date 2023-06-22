@@ -1,33 +1,32 @@
-import path from 'path';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+const webpack = require('webpack');
+const path = require('path');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-  entry: './src/main.ts',
-  output: {
-    path: path.join(__dirname, '/dist'),
-    filename: 'index_bundle.js',
-  },
+  entry: ['webpack/hot/poll?100', './src/main.ts'],
+  watch: true,
+  target: 'node',
+  externals: [
+    nodeExternals({
+      allowlist: ['webpack/hot/poll?100'],
+    }),
+  ],
   module: {
     rules: [
       {
-        test: /\.(j|t)s$/,
-        exclude: /node_modules|dist/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              '@babel/preset-env',
-              '@babel/preset-react',
-              '@babel/preset-typescript',
-            ],
-          },
-        },
+        test: /.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
       },
     ],
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: './src/index.html',
-    }),
-  ],
+  mode: 'development',
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  },
+  plugins: [new webpack.HotModuleReplacementPlugin()],
+  output: {
+    path: path.join(__dirname, 'dist'),
+    filename: 'server.js',
+  },
 };
